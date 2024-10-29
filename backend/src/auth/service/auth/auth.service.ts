@@ -30,7 +30,7 @@ export class AuthService {
       throw new UnauthorizedException('La contraseña es incorrecta');
     }
     return {
-      ...(await this.generateToken(user.id, user.username, user.email)),
+      ...(await this.generateToken(user.id, user.rol)),
     };
   }
 
@@ -38,12 +38,11 @@ export class AuthService {
     if (this.userService.findOne(signUp.username)) {
       throw new ConflictException('El nombre de usuario ya existe');
     }
-    const { token, account, finance } =
-      await this.accountService.findAccountToken(
-        signUp.accountNumber,
-        signUp.username,
-        signUp.type,
-      );
+    const { token, account } = await this.accountService.findAccountToken(
+      signUp.accountNumber,
+      signUp.username,
+      signUp.type,
+    );
 
     const userData = {
       ...signUp,
@@ -53,9 +52,10 @@ export class AuthService {
       rol: RolUsuario.USER,
       password: await hash(signUp.password, hashConfig.salt),
       email: `${signUp.username}4@fasp.com`,
+      saldo: 0,
     };
 
-    const user = await this.userService.create(userData, account, finance);
+    const user = await this.userService.create(userData, account);
 
     this.cacheManager.set(
       `user_${user.id}_${signUp.accountNumber}`,
@@ -64,12 +64,12 @@ export class AuthService {
 
     return {
       ...user,
-      ...(await this.generateToken(user.id, user.email, user.username)),
+      ...(await this.generateToken(user.id, user.rol)),
     };
   }
 
-  private async generateToken(id: number, email: string, username: string) {
-    const payload = { sub: id, email, username };
+  private async generateToken(id: number, role: RolUsuario) {
+    const payload = { sub: id, role };
 
     return {
       accessToken: await this.jwtService.signAsync(payload),

@@ -1,5 +1,5 @@
 import { EstadoUsuario, RolUsuario } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 import { AccountDto } from './account.dto';
 
 export class UserDto {
@@ -43,4 +43,9 @@ export class UserCreateDto {
   @IsNotEmpty()
   @IsEnum(RolUsuario)
   rol: RolUsuario;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  saldo: number;
 }

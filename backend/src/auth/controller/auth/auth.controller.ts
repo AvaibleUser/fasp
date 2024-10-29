@@ -4,7 +4,7 @@ import { SignUpReq } from 'src/auth/data/dto/sign-up.dto';
 import { Public } from 'src/auth/decorator/public/public.decorator';
 import { AuthService } from 'src/auth/service/auth/auth.service';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 

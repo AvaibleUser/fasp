@@ -22,28 +22,21 @@ model Usuario {
   password      String
   estado        EstadoUsuario
   rol           RolUsuario
+  saldo         Float         @default(0)
   fechaCreacion DateTime      @default(now())
   cuentas       Cuenta[]
 }
 
 model Cuenta {
   id                     Int           @id @default(autoincrement())
+  estado                 EstadoCuenta
+  nombre                 String
+  tipo                   TipoFinanza
+  fechaCreacion          DateTime      @default(now())
   usuarioId              Int
   usuario                Usuario       @relation(fields: [usuarioId], references: [id])
-  saldo                  Float         @default(0)
-  estado                 EstadoCuenta
-  fechaCreacion          DateTime      @default(now())
-  finanzaId              Int           @unique
-  finanza                Finanza       @relation(fields: [finanzaId], references: [id])
   transaccionesEnviadas  Transaccion[] @relation(name: "enviadas")
   transaccionesRecibidas Transaccion[] @relation(name: "recibidas")
-}
-
-model Finanza {
-  id     Int         @id @default(autoincrement())
-  nombre String
-  tipo   TipoFinanza
-  cuenta Cuenta?
 }
 
 model Transaccion {

@@ -26,6 +26,7 @@ CREATE TABLE "Usuario" (
     "password" TEXT NOT NULL,
     "estado" "EstadoUsuario" NOT NULL,
     "rol" "RolUsuario" NOT NULL,
+    "saldo" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "fechaCreacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
@@ -34,22 +35,13 @@ CREATE TABLE "Usuario" (
 -- CreateTable
 CREATE TABLE "Cuenta" (
     "id" SERIAL NOT NULL,
-    "usuarioId" INTEGER NOT NULL,
-    "saldo" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "estado" "EstadoCuenta" NOT NULL,
-    "fechaCreacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "finanzaId" INTEGER NOT NULL,
-
-    CONSTRAINT "Cuenta_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Finanza" (
-    "id" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
     "tipo" "TipoFinanza" NOT NULL,
+    "fechaCreacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "usuarioId" INTEGER NOT NULL,
 
-    CONSTRAINT "Finanza_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Cuenta_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -73,14 +65,8 @@ CREATE UNIQUE INDEX "Usuario_username_key" ON "Usuario"("username");
 -- CreateIndex
 CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Cuenta_finanzaId_key" ON "Cuenta"("finanzaId");
-
 -- AddForeignKey
 ALTER TABLE "Cuenta" ADD CONSTRAINT "Cuenta_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Cuenta" ADD CONSTRAINT "Cuenta_finanzaId_fkey" FOREIGN KEY ("finanzaId") REFERENCES "Finanza"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Transaccion" ADD CONSTRAINT "Transaccion_cuentaOrigenId_fkey" FOREIGN KEY ("cuentaOrigenId") REFERENCES "Cuenta"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

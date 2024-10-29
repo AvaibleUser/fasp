@@ -6,8 +6,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { RolUsuario } from '@prisma/client';
 import { Request } from 'express';
 import { jwtConfig } from 'src/auth/data/constant/jwt.constant';
+import { ADMIN } from 'src/auth/decorator/admin/admin.decorator';
 import { PUBLIC } from 'src/auth/decorator/public/public.decorator';
 
 @Injectable()
@@ -37,9 +39,18 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConfig.secret,
       });
+
+      const isAdmin = this.reflector.getAllAndOverride<boolean>(ADMIN, [
+        context.getHandler(),
+        context.getClass(),
+      ]);
+      if (isAdmin && payload.role !== RolUsuario.ADMIN) {
+        throw new UnauthorizedException('No tienes permisos para acceder');
+      }
+
       request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException();
+    } catch (e) {
+      throw new UnauthorizedException(e.message ?? 'Debe iniciar sesión');
     }
 
     return true;

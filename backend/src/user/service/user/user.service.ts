@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Usuario } from '@prisma/client';
 import { PrismaService } from 'src/service/prisma/prisma.service';
 import { AccountCreateDto } from 'src/user/data/dto/account.dto';
-import { FinanceCreateDto } from 'src/user/data/dto/finance.dto';
 import { UserCreateDto } from 'src/user/data/dto/user.dto';
 
 @Injectable()
@@ -12,20 +11,13 @@ export class UserService {
   async create(
     data: UserCreateDto,
     account: AccountCreateDto,
-    finanza: FinanceCreateDto,
   ): Promise<Usuario> {
-    return this.prismaService.cuenta
-      .create({
-        data: {
-          ...account,
-          finanza: { create: finanza },
-          usuario: { create: { ...data } },
-        },
-        select: {
-          usuario: true,
-        },
-      })
-      .usuario();
+    return this.prismaService.usuario.create({
+      data: {
+        ...data,
+        cuentas: { create: { ...account } },
+      },
+    });
   }
 
   async findOne(username: string): Promise<Usuario | undefined> {
@@ -34,24 +26,18 @@ export class UserService {
     });
   }
 
-  async deleteOne(username: string): Promise<void> {
-    const user = await this.prismaService.usuario.findFirst({
-      where: { OR: [{ username }, { email: username }] },
+  async deleteOne(id: number): Promise<void> {
+    const user = await this.prismaService.usuario.findUnique({
+      where: { id, estado: 'ACTIVO' },
     });
+
     if (user) {
-      const accounts = await this.prismaService.cuenta.findMany({
-        where: { usuarioId: user.id },
-      });
-      if (accounts.length !== 0) {
-        accounts.some((account) => {
-          if (account.saldo > 0) {
-            return true;
-          }
-        });
+      if (!user.saldo) {
+        throw new Error('No se puede eliminar un usuario con saldo');
       }
 
-      await this.prismaService.usuario.updateMany({
-        where: { OR: [{ username }, { email: username }] },
+      await this.prismaService.usuario.update({
+        where: { id },
         data: { estado: 'INACTIVO' },
       });
     }

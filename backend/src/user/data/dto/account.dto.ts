@@ -1,6 +1,6 @@
-import { IsEnum, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { EstadoCuenta, TipoFinanza } from '@prisma/client';
+import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, Min } from 'class-validator';
 import { UserDto } from './user.dto';
-import { EstadoCuenta } from '@prisma/client';
 
 export type AccountDto = {
   id: number;
@@ -24,4 +24,12 @@ export class AccountCreateDto {
   @IsNotEmpty()
   @IsEnum(EstadoCuenta)
   estado: EstadoCuenta;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  nombre: string;
+
+  @IsEnum(TipoFinanza)
+  tipo: TipoFinanza;
 }

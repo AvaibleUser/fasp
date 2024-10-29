@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { EstadoCuenta, TipoFinanza } from '@prisma/client';
 import { webServices } from 'src/data/constant/web-services.constant';
 import { AccountCreateDto } from 'src/user/data/dto/account.dto';
-import { FinanceCreateDto } from 'src/user/data/dto/finance.dto';
 
 @Injectable()
 export class AccountService {
@@ -35,14 +34,11 @@ export class AccountService {
     }
 
     const account: AccountCreateDto = {
-      saldo: 0,
       estado: EstadoCuenta.ACTIVA,
-    };
-    const finance: FinanceCreateDto = {
       nombre: accountNumber.toString(),
       tipo: type === 'credit' ? TipoFinanza.CREDITO : TipoFinanza.BANCO,
     };
 
-    return { token: result.token, account, finance };
+    return { token: result.token, account };
   }
 }
