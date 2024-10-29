@@ -11,10 +11,7 @@ CREATE TYPE "EstadoCuenta" AS ENUM ('ACTIVA', 'INACTIVA', 'BLOQUEADA');
 CREATE TYPE "EstadoTransaccion" AS ENUM ('EXITOSA', 'FALLIDA', 'PENDIENTE');
 
 -- CreateEnum
-CREATE TYPE "TipoCuenta" AS ENUM ('BANCARIA', 'TARJETA_CREDITO');
-
--- CreateEnum
-CREATE TYPE "TipoEntidadFinanciera" AS ENUM ('BANCO', 'TARJETA_CREDITO');
+CREATE TYPE "TipoFinanza" AS ENUM ('BANCO', 'CREDITO');
 
 -- CreateEnum
 CREATE TYPE "TipoTransaccion" AS ENUM ('PAGO', 'RETIRO', 'TRANSFERENCIA');
@@ -37,23 +34,22 @@ CREATE TABLE "Usuario" (
 -- CreateTable
 CREATE TABLE "Cuenta" (
     "id" SERIAL NOT NULL,
-    "tipo" "TipoCuenta" NOT NULL,
     "usuarioId" INTEGER NOT NULL,
     "saldo" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "estado" "EstadoCuenta" NOT NULL,
     "fechaCreacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "entidadFinancieraId" INTEGER NOT NULL,
+    "finanzaId" INTEGER NOT NULL,
 
     CONSTRAINT "Cuenta_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "EntidadFinanciera" (
+CREATE TABLE "Finanza" (
     "id" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
-    "tipo" "TipoEntidadFinanciera" NOT NULL,
+    "tipo" "TipoFinanza" NOT NULL,
 
-    CONSTRAINT "EntidadFinanciera_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Finanza_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -78,13 +74,13 @@ CREATE UNIQUE INDEX "Usuario_username_key" ON "Usuario"("username");
 CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Cuenta_entidadFinancieraId_key" ON "Cuenta"("entidadFinancieraId");
+CREATE UNIQUE INDEX "Cuenta_finanzaId_key" ON "Cuenta"("finanzaId");
 
 -- AddForeignKey
 ALTER TABLE "Cuenta" ADD CONSTRAINT "Cuenta_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Cuenta" ADD CONSTRAINT "Cuenta_entidadFinancieraId_fkey" FOREIGN KEY ("entidadFinancieraId") REFERENCES "EntidadFinanciera"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Cuenta" ADD CONSTRAINT "Cuenta_finanzaId_fkey" FOREIGN KEY ("finanzaId") REFERENCES "Finanza"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Transaccion" ADD CONSTRAINT "Transaccion_cuentaOrigenId_fkey" FOREIGN KEY ("cuentaOrigenId") REFERENCES "Cuenta"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -4,6 +4,7 @@ import { UserModule } from 'src/user/user.module';
 import { AuthController } from './controller/auth/auth.controller';
 import { AuthService } from './service/auth/auth.service';
 import { jwtConfig } from './data/constant/jwt.constant';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { jwtConfig } from './data/constant/jwt.constant';
       secret: jwtConfig.secret,
       signOptions: { expiresIn: '48h' }, // Para pruebas, en produccion seria 60s para que sea seguro el manejo del dinero
     }),
+    CacheModule.register(),
     UserModule,
   ],
   controllers: [AuthController],

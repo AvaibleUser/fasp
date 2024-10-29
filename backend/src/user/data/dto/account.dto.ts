@@ -1,13 +1,13 @@
 import { IsEnum, IsNotEmpty, IsNumber, Min } from 'class-validator';
-import { AccountStatus } from '../enum/account.enum';
 import { UserDto } from './user.dto';
+import { EstadoCuenta } from '@prisma/client';
 
 export type AccountDto = {
   id: number;
   usuarioId: number;
   usuario: UserDto;
   saldo: number;
-  estado: AccountStatus;
+  estado: EstadoCuenta;
   fechaCreacion: Date;
   entidadFinancieraId: number;
   // entidadFinanciera: EntidadFinancieraDto;
@@ -22,6 +22,6 @@ export class AccountCreateDto {
   saldo: number;
 
   @IsNotEmpty()
-  @IsEnum(AccountStatus)
-  estado: AccountStatus;
+  @IsEnum(EstadoCuenta)
+  estado: EstadoCuenta;
 }

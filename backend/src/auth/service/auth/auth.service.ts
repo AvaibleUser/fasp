@@ -6,11 +6,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { EstadoUsuario, RolUsuario } from '@prisma/client';
 import { compare, hash } from 'bcrypt';
 import { hashConfig } from 'src/auth/data/constant/hash.constant';
 import { SignInRes } from 'src/auth/data/dto/sign-in.dto';
 import { SignUpReq, SignUpRes } from 'src/auth/data/dto/sign-up.dto';
-import { UserRole, UserState } from 'src/user/data/enum/user.enum';
 import { AccountService } from 'src/user/service/account/account.service';
 import { UserService } from 'src/user/service/user/user.service';
 
@@ -49,8 +49,8 @@ export class AuthService {
       ...signUp,
       accountNumber: undefined,
       type: undefined,
-      estado: UserState.ACTIVO,
-      rol: UserRole.USER,
+      estado: EstadoUsuario.ACTIVO,
+      rol: RolUsuario.USER,
       password: await hash(signUp.password, hashConfig.salt),
       email: `${signUp.username}4@fasp.com`,
     };

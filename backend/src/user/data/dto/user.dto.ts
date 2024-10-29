@@ -1,5 +1,6 @@
+import { EstadoUsuario, RolUsuario } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { UserRole, UserState } from '../enum/user.enum';
+import { AccountDto } from './account.dto';
 
 export class UserDto {
   id: number;
@@ -8,10 +9,10 @@ export class UserDto {
   username: string;
   email: string;
   password: string;
-  estado: UserState;
-  rol: UserRole;
+  estado: EstadoUsuario;
+  rol: RolUsuario;
   fechaCreacion: Date;
-  // cuentas: CuentaDto[];
+  cuentas?: AccountDto[];
 }
 
 export class UserCreateDto {
@@ -36,10 +37,10 @@ export class UserCreateDto {
   password: string;
 
   @IsNotEmpty()
-  @IsEnum(UserState)
-  estado: UserState;
+  @IsEnum(EstadoUsuario)
+  estado: EstadoUsuario;
 
   @IsNotEmpty()
-  @IsEnum(UserState)
-  rol: UserRole;
+  @IsEnum(RolUsuario)
+  rol: RolUsuario;
 }
