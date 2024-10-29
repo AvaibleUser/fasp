@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -12,6 +13,7 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: `${process.env.NODE_ENV}.env` }),
+    CacheModule.register(),
     AuthModule,
     UserModule,
     AdminModule,

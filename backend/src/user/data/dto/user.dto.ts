@@ -1,6 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { UserRole } from '../enum/user-role.enum';
-import { UserState } from '../enum/user-type.enum';
+import { UserRole, UserState } from '../enum/user.enum';
 
 export class UserDto {
   id: number;

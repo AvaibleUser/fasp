@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 import { UserDto } from 'src/user/data/dto/user.dto';
 import { SignInRes } from './sign-in.dto';
 
@@ -18,6 +18,15 @@ export class SignUpReq {
   @IsNotEmpty()
   @IsString()
   password: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  accountNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  type: 'credit' | 'bank';
 }
 
 export type SignUpRes = UserDto & SignInRes;

@@ -27,23 +27,22 @@ model Usuario {
 }
 
 model Cuenta {
-  id                     Int               @id @default(autoincrement())
-  tipo                   TipoCuenta
+  id                     Int           @id @default(autoincrement())
   usuarioId              Int
-  usuario                Usuario           @relation(fields: [usuarioId], references: [id])
-  saldo                  Float             @default(0)
+  usuario                Usuario       @relation(fields: [usuarioId], references: [id])
+  saldo                  Float         @default(0)
   estado                 EstadoCuenta
-  fechaCreacion          DateTime          @default(now())
-  entidadFinancieraId    Int               @unique
-  entidadFinanciera      EntidadFinanciera @relation(fields: [entidadFinancieraId], references: [id])
-  transaccionesEnviadas  Transaccion[]     @relation(name: "enviadas")
-  transaccionesRecibidas Transaccion[]     @relation(name: "recibidas")
+  fechaCreacion          DateTime      @default(now())
+  finanzaId              Int           @unique
+  finanza                Finanza       @relation(fields: [finanzaId], references: [id])
+  transaccionesEnviadas  Transaccion[] @relation(name: "enviadas")
+  transaccionesRecibidas Transaccion[] @relation(name: "recibidas")
 }
 
-model EntidadFinanciera {
-  id     Int                   @id @default(autoincrement())
+model Finanza {
+  id     Int         @id @default(autoincrement())
   nombre String
-  tipo   TipoEntidadFinanciera
+  tipo   TipoFinanza
   cuenta Cuenta?
 }
 
@@ -84,14 +83,9 @@ enum EstadoTransaccion {
   PENDIENTE
 }
 
-enum TipoCuenta {
-  BANCARIA
-  TARJETA_CREDITO
-}
-
-enum TipoEntidadFinanciera {
+enum TipoFinanza {
   BANCO
-  TARJETA_CREDITO
+  CREDITO
 }
 
 enum TipoTransaccion {
