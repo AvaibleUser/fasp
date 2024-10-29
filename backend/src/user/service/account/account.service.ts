@@ -11,7 +11,7 @@ export class AccountService {
     type: 'credit' | 'bank',
   ) {
     const service = type === 'credit' ? webServices.credit : webServices.bank;
-    if (!service.url) {
+    if (!service.host) {
       throw new Error('El servicio esta en mantenimiento');
     }
     const body = {
@@ -21,11 +21,14 @@ export class AccountService {
       nombreUsuario: username,
     };
 
-    const response = await fetch(service.url, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const response = await fetch(
+      `${service.host}/${service.endpoints.link.uri}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
 
     const result = await response.json();
 

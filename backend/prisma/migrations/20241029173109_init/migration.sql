@@ -53,7 +53,7 @@ CREATE TABLE "Transaccion" (
     "estado" "EstadoTransaccion" NOT NULL,
     "errores" TEXT,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "cuentaOrigenId" INTEGER NOT NULL,
+    "cuentaOrigenId" INTEGER,
     "cuentaDestinoId" INTEGER,
 
     CONSTRAINT "Transaccion_pkey" PRIMARY KEY ("id")
@@ -69,7 +69,7 @@ CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 ALTER TABLE "Cuenta" ADD CONSTRAINT "Cuenta_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaccion" ADD CONSTRAINT "Transaccion_cuentaOrigenId_fkey" FOREIGN KEY ("cuentaOrigenId") REFERENCES "Cuenta"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaccion" ADD CONSTRAINT "Transaccion_cuentaOrigenId_fkey" FOREIGN KEY ("cuentaOrigenId") REFERENCES "Cuenta"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Transaccion" ADD CONSTRAINT "Transaccion_cuentaDestinoId_fkey" FOREIGN KEY ("cuentaDestinoId") REFERENCES "Cuenta"("id") ON DELETE SET NULL ON UPDATE CASCADE;

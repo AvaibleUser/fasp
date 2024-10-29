@@ -6,7 +6,6 @@ export type AccountDto = {
   id: number;
   usuarioId: number;
   usuario: UserDto;
-  saldo: number;
   estado: EstadoCuenta;
   fechaCreacion: Date;
   entidadFinancieraId: number;
@@ -16,11 +15,6 @@ export type AccountDto = {
 };
 
 export class AccountCreateDto {
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(0)
-  saldo: number;
-
   @IsNotEmpty()
   @IsEnum(EstadoCuenta)
   estado: EstadoCuenta;

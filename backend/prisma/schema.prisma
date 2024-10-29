@@ -47,8 +47,8 @@ model Transaccion {
   estado          EstadoTransaccion
   errores         String?
   fecha           DateTime          @default(now())
-  cuentaOrigenId  Int
-  cuentaOrigen    Cuenta            @relation(name: "enviadas", fields: [cuentaOrigenId], references: [id])
+  cuentaOrigenId  Int?
+  cuentaOrigen    Cuenta?           @relation(name: "enviadas", fields: [cuentaOrigenId], references: [id])
   cuentaDestinoId Int?
   cuentaDestino   Cuenta?           @relation(name: "recibidas", fields: [cuentaDestinoId], references: [id])
 }
