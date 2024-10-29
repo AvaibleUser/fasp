@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id            Int           @id @default(autoincrement())
+  nombre        String
+  apellido      String
+  email         String        @unique
+  password      String
+  estado        EstadoUsuario
+  fechaCreacion DateTime      @default(now())
+  cuentas       Cuenta[]
+}
+
+model Cuenta {
+  id                     Int               @id @default(autoincrement())
+  tipo                   TipoCuenta
+  usuarioId              Int
+  usuario                Usuario           @relation(fields: [usuarioId], references: [id])
+  saldo                  Float             @default(0)
+  estado                 EstadoCuenta
+  fechaCreacion          DateTime          @default(now())
+  entidadFinancieraId    Int               @unique
+  entidadFinanciera      EntidadFinanciera @relation(fields: [entidadFinancieraId], references: [id])
+  transaccionesEnviadas  Transaccion[]     @relation(name: "enviadas")
+  transaccionesRecibidas Transaccion[]     @relation(name: "recibidas")
+}
+
+model EntidadFinanciera {
+  id     Int                   @id @default(autoincrement())
+  nombre String
+  tipo   TipoEntidadFinanciera
+  cuenta Cuenta?
+}
+
+model Transaccion {
+  id              Int               @id @default(autoincrement())
+  tipo            TipoTransaccion
+  descripcion     String?
+  monto           Float
+  estado          EstadoTransaccion
+  errores         String?
+  fecha           DateTime          @default(now())
+  cuentaOrigenId  Int
+  cuentaOrigen    Cuenta            @relation(name: "enviadas", fields: [cuentaOrigenId], references: [id])
+  cuentaDestinoId Int?
+  cuentaDestino   Cuenta?           @relation(name: "recibidas", fields: [cuentaDestinoId], references: [id])
+}
+
+enum EstadoUsuario {
+  ACTIVO
+  INACTIVO
+  BLOQUEADO
+}
+
+enum EstadoCuenta {
+  ACTIVA
+  INACTIVA
+  BLOQUEADA
+}
+
+enum EstadoTransaccion {
+  EXITOSA
+  FALLIDA
+  PENDIENTE
+}
+
+enum TipoCuenta {
+  BANCARIA
+  TARJETA_CREDITO
+}
+
+enum TipoEntidadFinanciera {
+  BANCO
+  TARJETA_CREDITO
+}
+
+enum TipoTransaccion {
+  PAGO
+  RETIRO
+  TRANSFERENCIA
+}
