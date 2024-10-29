@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { jwt } from 'src/auth/constants/jwt.constant';
+import { jwt } from 'src/auth/data/constants/jwt.constant';
 import { PUBLIC } from 'src/auth/decorator/public/public.decorator';
 
 @Injectable()

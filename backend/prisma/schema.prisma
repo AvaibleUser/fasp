@@ -17,9 +17,11 @@ model Usuario {
   id            Int           @id @default(autoincrement())
   nombre        String
   apellido      String
+  username      String        @unique
   email         String        @unique
   password      String
   estado        EstadoUsuario
+  rol           RolUsuario
   fechaCreacion DateTime      @default(now())
   cuentas       Cuenta[]
 }
@@ -63,6 +65,11 @@ enum EstadoUsuario {
   ACTIVO
   INACTIVO
   BLOQUEADO
+}
+
+enum RolUsuario {
+  ADMIN
+  USER
 }
 
 enum EstadoCuenta {
