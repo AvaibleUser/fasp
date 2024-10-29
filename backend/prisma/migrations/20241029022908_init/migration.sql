@@ -2,6 +2,9 @@
 CREATE TYPE "EstadoUsuario" AS ENUM ('ACTIVO', 'INACTIVO', 'BLOQUEADO');
 
 -- CreateEnum
+CREATE TYPE "RolUsuario" AS ENUM ('ADMIN', 'USER');
+
+-- CreateEnum
 CREATE TYPE "EstadoCuenta" AS ENUM ('ACTIVA', 'INACTIVA', 'BLOQUEADA');
 
 -- CreateEnum
@@ -21,9 +24,11 @@ CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
     "apellido" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "estado" "EstadoUsuario" NOT NULL,
+    "rol" "RolUsuario" NOT NULL,
     "fechaCreacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
@@ -65,6 +70,9 @@ CREATE TABLE "Transaccion" (
 
     CONSTRAINT "Transaccion_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Usuario_username_key" ON "Usuario"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
