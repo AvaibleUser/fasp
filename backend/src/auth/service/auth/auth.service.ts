@@ -38,7 +38,7 @@ export class AuthService {
     if (this.userService.findOne(signUp.username)) {
       throw new ConflictException('El nombre de usuario ya existe');
     }
-    const { token, account } = await this.accountService.findAccountToken(
+    const { token, account } = await this.accountService.findToken(
       signUp.accountNumber,
       signUp.username,
       signUp.type,

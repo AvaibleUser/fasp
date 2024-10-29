@@ -1,11 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { EstadoCuenta, TipoFinanza } from '@prisma/client';
 import { webServices } from 'src/data/constant/web-services.constant';
+import { PrismaService } from 'src/service/prisma/prisma.service';
 import { AccountCreateDto } from 'src/user/data/dto/account.dto';
 
 @Injectable()
 export class AccountService {
-  async findAccountToken(
+  constructor(private prismaService: PrismaService) {}
+
+  async findAll(userId: number) {
+    const user = await this.prismaService.usuario.findUnique({
+      where: { id: userId, estado: 'ACTIVO' },
+      include: { cuentas: true },
+    });
+
+    return user?.cuentas;
+  }
+
+  async findToken(
     accountNumber: number,
     username: string,
     type: 'credit' | 'bank',

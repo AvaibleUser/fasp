@@ -8,6 +8,16 @@ import { TransactionCreateDto } from 'src/transaction/data/dto/transaction.dto';
 export class TransactionService {
   constructor(private prismaService: PrismaService) {}
 
+  async findAll(userId: number, from: Date, to: Date = new Date()) {
+    return await this.prismaService.transaccion.findMany({
+      where: {
+        OR: [{ cuentaOrigenId: userId }, { cuentaDestinoId: userId }],
+        fecha: { gte: from, lte: to },
+        estado: 'EXITOSA',
+      },
+    });
+  }
+
   async create(data: TransactionCreateDto): Promise<Transaccion> {
     const { cuentaOrigenId, cuentaDestinoId, ...transaccion } = data;
 
