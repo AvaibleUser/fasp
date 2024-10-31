@@ -1,6 +1,5 @@
-import { TipoTransaccion } from '@prisma/client';
+import { TipoPago } from '@prisma/client';
 import {
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -10,25 +9,16 @@ import {
 
 export class TransactionCreateDto {
   @IsNotEmpty()
-  @IsEnum(TipoTransaccion)
-  tipo: TipoTransaccion;
-
-  @IsNotEmpty()
-  @IsString()
-  descripcion: string;
-
-  @IsNotEmpty()
   @IsNumber()
   @Min(1)
   monto: number;
 
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  cuentaOrigenId: number;
+  @IsNotEmpty()
+  @IsString()
+  usernameReceptor: string;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
-  cuentaDestinoId: number;
+  tipoPago: TipoPago;
 }

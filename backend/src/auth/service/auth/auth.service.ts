@@ -11,14 +11,14 @@ import { compare, hash } from 'bcrypt';
 import { hashConfig } from 'src/auth/data/constant/hash.constant';
 import { SignInRes } from 'src/auth/data/dto/sign-in.dto';
 import { SignUpReq, SignUpRes } from 'src/auth/data/dto/sign-up.dto';
-import { AccountService } from 'src/user/service/account/account.service';
+import { PaymentService } from 'src/user/service/payment/payment.service';
 import { UserService } from 'src/user/service/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
-    private accountService: AccountService,
+    private accountService: PaymentService,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}

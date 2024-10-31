@@ -14,43 +14,44 @@ datasource db {
 }
 
 model Usuario {
-  id            Int           @id @default(autoincrement())
-  nombre        String
-  apellido      String
-  username      String        @unique
-  email         String        @unique
-  password      String
-  estado        EstadoUsuario
-  rol           RolUsuario
-  saldo         Float         @default(0)
-  fechaCreacion DateTime      @default(now())
-  cuentas       Cuenta[]
-}
-
-model Cuenta {
   id                     Int           @id @default(autoincrement())
-  estado                 EstadoCuenta
   nombre                 String
-  tipo                   TipoFinanza
+  apellido               String
+  username               String        @unique
+  email                  String        @unique
+  password               String
+  estado                 EstadoUsuario @default(ACTIVO)
+  rol                    RolUsuario    @default(USER)
+  saldo                  Float         @default(0)
   fechaCreacion          DateTime      @default(now())
-  usuarioId              Int
-  usuario                Usuario       @relation(fields: [usuarioId], references: [id])
+  metodosPago            MetodoPago[]
   transaccionesEnviadas  Transaccion[] @relation(name: "enviadas")
   transaccionesRecibidas Transaccion[] @relation(name: "recibidas")
 }
 
+model MetodoPago {
+  id            Int           @id @default(autoincrement())
+  numero        Int
+  estado        EstadoPago
+  tipo          TipoPago
+  fechaCreacion DateTime      @default(now())
+  usuarioId     Int
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
+  transacciones Transaccion[]
+}
+
 model Transaccion {
-  id              Int               @id @default(autoincrement())
-  tipo            TipoTransaccion
-  descripcion     String?
-  monto           Float
-  estado          EstadoTransaccion
-  errores         String?
-  fecha           DateTime          @default(now())
-  cuentaOrigenId  Int?
-  cuentaOrigen    Cuenta?           @relation(name: "enviadas", fields: [cuentaOrigenId], references: [id])
-  cuentaDestinoId Int?
-  cuentaDestino   Cuenta?           @relation(name: "recibidas", fields: [cuentaDestinoId], references: [id])
+  id           Int               @id @default(autoincrement())
+  monto        Float
+  estado       EstadoTransaccion @default(PENDIENTE)
+  errores      String?
+  fecha        DateTime          @default(now())
+  emisorId     Int
+  emisor       Usuario           @relation(name: "enviadas", fields: [emisorId], references: [id])
+  receptorId   Int
+  receptor     Usuario           @relation(name: "recibidas", fields: [receptorId], references: [id])
+  metodoPagoId Int?
+  metodoPago   MetodoPago?       @relation(fields: [metodoPagoId], references: [id])
 }
 
 enum EstadoUsuario {
@@ -64,10 +65,9 @@ enum RolUsuario {
   USER
 }
 
-enum EstadoCuenta {
+enum EstadoPago {
   ACTIVA
   INACTIVA
-  BLOQUEADA
 }
 
 enum EstadoTransaccion {
@@ -76,13 +76,7 @@ enum EstadoTransaccion {
   PENDIENTE
 }
 
-enum TipoFinanza {
+enum TipoPago {
   BANCO
   CREDITO
-}
-
-enum TipoTransaccion {
-  PAGO
-  RETIRO
-  TRANSFERENCIA
 }

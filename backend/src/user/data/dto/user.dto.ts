@@ -1,6 +1,6 @@
 import { EstadoUsuario, RolUsuario } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
-import { AccountDto } from './account.dto';
+import { PaymentDto } from './payment.dto';
 
 export class UserDto {
   id: number;
@@ -12,7 +12,7 @@ export class UserDto {
   estado: EstadoUsuario;
   rol: RolUsuario;
   fechaCreacion: Date;
-  cuentas?: AccountDto[];
+  metodosPago?: PaymentDto[];
 }
 
 export class UserCreateDto {

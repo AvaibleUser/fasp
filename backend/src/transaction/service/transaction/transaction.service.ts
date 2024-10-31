@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Transaccion } from '@prisma/client';
 import { webServices } from 'src/data/constant/web-services.constant';
 import { PrismaService } from 'src/service/prisma/prisma.service';
@@ -11,100 +16,84 @@ export class TransactionService {
   async findAll(userId: number, from: Date, to: Date = new Date()) {
     return await this.prismaService.transaccion.findMany({
       where: {
-        OR: [{ cuentaOrigenId: userId }, { cuentaDestinoId: userId }],
+        OR: [{ emisorId: userId }, { receptorId: userId }],
         fecha: { gte: from, lte: to },
         estado: 'EXITOSA',
       },
     });
   }
 
-  async create(data: TransactionCreateDto): Promise<Transaccion> {
-    const { cuentaOrigenId, cuentaDestinoId, ...transaccion } = data;
+  async create(
+    data: TransactionCreateDto,
+    emisorId: number,
+  ): Promise<Transaccion> {
+    const { tipoPago, usernameReceptor, ...transaccion } = data;
+
+    const metodoPago = !tipoPago
+      ? undefined
+      : await this.prismaService.metodoPago.findFirst({
+          where: { tipo: tipoPago, usuarioId: emisorId },
+        });
 
     const pendingTransaction = await this.prismaService.transaccion.create({
       data: {
         ...transaccion,
-        estado: 'PENDIENTE',
-        cuentaOrigen: cuentaOrigenId
-          ? { connect: { id: cuentaOrigenId } }
-          : undefined,
-        cuentaDestino: cuentaDestinoId
-          ? { connect: { id: cuentaDestinoId } }
-          : undefined,
+        emisor: { connect: { id: emisorId } },
+        receptor: { connect: { username: usernameReceptor } },
+        metodoPago: metodoPago ? { connect: { id: metodoPago.id } } : undefined,
       },
       include: {
-        cuentaOrigen: true,
-        cuentaDestino: true,
+        emisor: true,
+        receptor: true,
       },
     });
 
     try {
-      if (cuentaOrigenId && cuentaDestinoId) {
-        await this.transfer(pendingTransaction);
-
-        return await this.prismaService.transaccion.update({
-          where: { id: pendingTransaction.id },
-          data: {
-            estado: 'EXITOSA',
-          },
-        });
-      } else if (cuentaOrigenId) {
+      if (metodoPago) {
         await this.changeAmount(
           true,
-          +cuentaOrigenId,
+          +metodoPago.numero,
           pendingTransaction.monto,
-          pendingTransaction.cuentaOrigen.tipo,
+          metodoPago.tipo,
         );
 
         return await this.prismaService.transaccion.update({
           where: { id: pendingTransaction.id },
           data: {
             estado: 'EXITOSA',
-            cuentaOrigen: {
+            receptor: {
               update: {
-                where: { id: cuentaOrigenId },
-                data: {
-                  usuario: {
-                    update: {
-                      where: { id: pendingTransaction.cuentaOrigen.usuarioId },
-                      data: { saldo: { increment: pendingTransaction.monto } },
-                    },
-                  },
-                },
+                where: { id: pendingTransaction.receptorId },
+                data: { saldo: { increment: pendingTransaction.monto } },
               },
             },
           },
+          include: { metodoPago: { select: { tipo: true } } },
         });
-      } else if (cuentaDestinoId) {
-        await this.changeAmount(
-          false,
-          +cuentaDestinoId,
-          pendingTransaction.monto,
-          pendingTransaction.cuentaDestino.tipo,
-        );
-
-        return await this.prismaService.transaccion.update({
-          where: { id: pendingTransaction.id },
-          data: {
-            estado: 'EXITOSA',
-            cuentaDestino: {
-              update: {
-                where: { id: cuentaDestinoId },
-                data: {
-                  usuario: {
-                    update: {
-                      where: { id: pendingTransaction.cuentaDestino.usuarioId },
-                      data: { saldo: { decrement: pendingTransaction.monto } },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
-      } else {
-        throw new Error('La transacción es defectuosa');
       }
+      if (pendingTransaction.emisor.saldo < pendingTransaction.monto) {
+        throw new ConflictException('No hay suficiente saldo');
+      }
+
+      return await this.prismaService.transaccion.update({
+        where: { id: pendingTransaction.id },
+        data: {
+          estado: 'EXITOSA',
+          receptor: {
+            update: {
+              where: { id: pendingTransaction.receptorId },
+              data: { saldo: { increment: pendingTransaction.monto } },
+            },
+          },
+          emisor: {
+            update: {
+              where: { id: pendingTransaction.emisorId },
+              data: { saldo: { decrement: pendingTransaction.monto } },
+            },
+          },
+        },
+        include: { metodoPago: { select: { tipo: true } } },
+      });
     } catch (error) {
       await this.prismaService.transaccion.update({
         where: { id: pendingTransaction.id },
@@ -127,7 +116,7 @@ export class TransactionService {
     const service = type === 'CREDITO' ? webServices.credit : webServices.bank;
 
     if (!service.host) {
-      throw new Error('El servicio esta en mantenimiento');
+      throw new NotFoundException('El servicio esta en mantenimiento');
     }
 
     const amountToUse = amount * (reduce ? -1 : 1);
@@ -150,36 +139,9 @@ export class TransactionService {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.error ?? 'No se encontro la cuenta');
+      throw new BadRequestException(result.error ?? 'No se encontro la cuenta');
     }
 
     return result.nuevoSaldo;
-  }
-
-  private async transfer(pendingTransaction) {
-    try {
-      await this.changeAmount(
-        true,
-        +pendingTransaction.cuentaOrigen.nombre,
-        pendingTransaction.monto,
-        pendingTransaction.cuentaOrigen.tipo,
-      );
-      await this.changeAmount(
-        false,
-        +pendingTransaction.cuentaDestino.nombre,
-        pendingTransaction.monto,
-        pendingTransaction.cuentaDestino.tipo,
-      );
-    } catch (error) {
-      await this.prismaService.transaccion.update({
-        where: { id: pendingTransaction.id },
-        data: {
-          estado: 'FALLIDA',
-          errores: error.message,
-        },
-      });
-
-      throw error;
-    }
   }
 }

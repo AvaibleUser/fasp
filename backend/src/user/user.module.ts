@@ -1,14 +1,14 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { AppModule } from 'src/app.module';
-import { AccountService } from './service/account/account.service';
+import { PaymentService } from './service/payment/payment.service';
 import { UserService } from './service/user/user.service';
 import { UserController } from './controller/user/user.controller';
-import { AccountController } from './controller/account/account.controller';
+import { PaymentController } from './controller/payment/payment.controller';
 
 @Module({
   imports: [forwardRef(() => AppModule)],
-  providers: [UserService, AccountService],
-  exports: [UserService, AccountService],
-  controllers: [UserController, AccountController],
+  providers: [UserService, PaymentService],
+  exports: [UserService, PaymentService],
+  controllers: [UserController, PaymentController],
 })
 export class UserModule {}
