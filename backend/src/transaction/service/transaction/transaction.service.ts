@@ -27,12 +27,12 @@ export class TransactionService {
     data: TransactionCreateDto,
     emisorId: number,
   ): Promise<Transaccion> {
-    const { tipoPago, usernameReceptor, ...transaccion } = data;
+    const { numero, usernameReceptor, ...transaccion } = data;
 
-    const metodoPago = !tipoPago
+    const metodoPago = !numero
       ? undefined
       : await this.prismaService.metodoPago.findFirst({
-          where: { tipo: tipoPago, usuarioId: emisorId },
+          where: { numero, usuarioId: emisorId },
         });
 
     const pendingTransaction = await this.prismaService.transaccion.create({
@@ -124,7 +124,7 @@ export class TransactionService {
       account_number: accountNumber,
       amount: amountToUse,
       numeroTarjeta: accountNumber.toString(),
-      montoReducir: 2999.0,
+      montoReducir: amountToUse,
     };
 
     const response = await fetch(

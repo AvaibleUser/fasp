@@ -31,7 +31,7 @@ model Usuario {
 
 model MetodoPago {
   id            Int           @id @default(autoincrement())
-  numero        Int
+  numero        Int // numero de cuenta bancaria o de tarjeta
   estado        EstadoPago
   tipo          TipoPago
   fechaCreacion DateTime      @default(now())

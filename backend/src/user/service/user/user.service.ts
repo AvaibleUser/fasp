@@ -10,12 +10,12 @@ export class UserService {
 
   async create(
     data: UserCreateDto,
-    account: PaymentCreateDto,
+    metodoPago: PaymentCreateDto,
   ): Promise<Usuario> {
     return this.prismaService.usuario.create({
       data: {
         ...data,
-        cuentas: { create: { ...account } },
+        metodosPago: { create: { ...metodoPago } },
       },
     });
   }

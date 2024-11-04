@@ -20,5 +20,5 @@ export class TransactionCreateDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  tipoPago: TipoPago;
+  numero: number;
 }
